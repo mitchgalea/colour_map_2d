@@ -26,6 +26,8 @@ public:
 
     ////SETTERS
     void setID(int16_t id);
+
+    void print();
 };
 
 }

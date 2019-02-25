@@ -40,14 +40,15 @@ enum class Colour {
 };
 
 struct ColourInfo{
-    ColourInfo(Colour colour_input, std::vector<uint8_t> h_input,
+    ColourInfo(Colour colour_input, std::string name_input, std::vector<uint8_t> h_input,
                  std::vector<uint8_t> s_input, std::vector<uint8_t> v_input,
                  uint8_t r_input, uint8_t g_input, uint8_t b_input)
-        :colour(colour_input), h(h_input), s(s_input), v(v_input), r(r_input), g(g_input), b(b_input) {}
+        :colour(colour_input), name(name_input), h(h_input), s(s_input), v(v_input), r(r_input), g(g_input), b(b_input) {}
     Colour colour;
     std::vector<uint8_t> h;
     std::vector<uint8_t> s;
     std::vector<uint8_t> v;
+    std::string name;
 
     uint8_t r;
     uint8_t g;
@@ -57,10 +58,11 @@ cv::Scalar getRGB(Colour colour);
 uint8_t getR(Colour colour);
 uint8_t getG(Colour colour);
 uint8_t getB(Colour colour);
+std::string getName(Colour colour);
 
-const ColourInfo RED(Colour::red, RED_H, RED_S, RED_V, RED_R, RED_G, RED_B);
-const ColourInfo GREEN(Colour::green, GREEN_H, GREEN_S, GREEN_V, GREEN_R, GREEN_G, GREEN_B);
-const ColourInfo BLUE(Colour::blue, BLUE_H, BLUE_S, BLUE_V, BLUE_R, BLUE_G, BLUE_B);
+const ColourInfo RED(Colour::red, "RED", RED_H, RED_S, RED_V, RED_R, RED_G, RED_B);
+const ColourInfo GREEN(Colour::green, "GREEN", GREEN_H, GREEN_S, GREEN_V, GREEN_R, GREEN_G, GREEN_B);
+const ColourInfo BLUE(Colour::blue, "BLUE", BLUE_H, BLUE_S, BLUE_V, BLUE_R, BLUE_G, BLUE_B);
 
 const std::vector<ColourInfo> COLOURS = {RED, BLUE, GREEN};
 

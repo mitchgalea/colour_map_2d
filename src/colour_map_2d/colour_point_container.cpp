@@ -7,22 +7,25 @@ ColourPointContainer::ColourPointContainer()
 
 }
 
-void ColourPointContainer::processPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
+void ColourPointContainer::processPoint(pcl::PointXYZRGB cloud_point)
 {
     std::lock_guard<std::mutex> locker(mutex_);
-    for (size_t i = 0; i < cloud->points.size(); i++)
+    ColourPoint point(cloud_point);
+    if(point.getColour() != ColourLib::Colour::white)
     {
-        ColourPoint point(cloud->points[i]);
-        if(point.getColour() != ColourLib::Colour::white /*&& points_.size() < MAX_SIZE*/)
-        {
-            addPoint(point);
-        }
+        addPoint(point);
     }
 }
 
 void ColourPointContainer::addPoint(ColourPoint point)
 {
+    point.print();
     points_.push_back(point);
+}
+
+size_t ColourPointContainer::size()
+{
+    return points_.size();
 }
 
 cv::Mat ColourPointContainer::outputImage(nav_msgs::MapMetaData map_data)
@@ -36,7 +39,7 @@ cv::Mat ColourPointContainer::outputImage(nav_msgs::MapMetaData map_data)
     for(auto point:points_)
     {
         std::pair<int, int> grid_pos = MapTransform::posetoGrid(point.getPose(), map_data);
-        cv::circle(image, cv::Point(grid_pos.first, grid_pos.second), radius, ColourLib::getRGB(point.getColour()),
+        cv::circle(image, cv::Point(grid_pos.second, grid_pos.first), radius, ColourLib::getRGB(point.getColour()),
                    thickness);
     }
     return image;

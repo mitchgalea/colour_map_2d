@@ -3,7 +3,6 @@
 #include "colour_map_2d/map_transform.h"
 
 #include "nav_msgs/MapMetaData.h"
-#include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
 #include <mutex>
 
@@ -24,8 +23,9 @@ private:
 public:
     ColourPointContainer();
 
-    void processPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
+    void processPoint(pcl::PointXYZRGB cloud_point);
     void addPoint(ColourPoint point);
+    size_t size();
 
     cv::Mat outputImage(nav_msgs::MapMetaData map_data);
 

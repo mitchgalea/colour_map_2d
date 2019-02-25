@@ -116,4 +116,15 @@ uint8_t getB(Colour colour)
     }
     return 0;
 }
+
+std::string getName(Colour colour)
+{
+    for(auto i = 0; i < COLOURS.size(); i++)
+    {
+        if(colour == COLOURS.at(i).colour){
+            return COLOURS.at(i).name;
+        }
+    }
+    return " ";
+}
 }

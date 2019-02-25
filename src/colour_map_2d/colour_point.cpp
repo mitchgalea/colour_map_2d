@@ -22,7 +22,14 @@ ColourLib::Colour ColourPoint::getColour() const {return colour_;}
 
 ////SETTERS
 void ColourPoint::setID(int16_t id) {id_ = id;}
+
+void ColourPoint::print()
+{
+    std::cout << "Colour: " << ColourLib::getName(colour_) << ", Pose (x: " << pose_.x << ", y: " << pose_.y << ")" << std::endl;
 }
+}
+
+
 
 
 
