@@ -7,12 +7,6 @@
 
 namespace ColourMap2D{
 
-enum class CellState{
-    occupied,
-    empty,
-    unknown
-};
-
 class GridCell
 {
 private:
