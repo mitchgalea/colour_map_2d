@@ -3,14 +3,24 @@
 namespace ColourMap2D{
 
 ////CONSTRUCTORS
-GridCell::GridCell(unsigned index, bool occupied_in): index_(index), occupied_(occupied_in)
+GridCell::GridCell(unsigned index, bool occupied_in)
+    : index_(index), occupied_(occupied_in), prob_neighbour_(false)
 {
     for(size_t i = 0; i < ColourLib::COLOURS.size() - 1; i++)
     {
         colour_probs_.push_back(1 / static_cast<double>(ColourLib::COLOURS.size() + 1));
     }
     colour_probs_.push_back(2 / static_cast<double>(ColourLib::COLOURS.size() + 1));
-
+}
+    
+GridCell::GridCell(unsigned index, int col, int row, bool occupied_in)
+    : index_(index), occupied_(occupied_in), col_(col), row_(row), prob_neighbour_(false)
+{
+    for(size_t i = 0; i < ColourLib::COLOURS.size() - 1; i++)
+    {
+        colour_probs_.push_back(1 / static_cast<double>(ColourLib::COLOURS.size() + 1));
+    }
+    colour_probs_.push_back(2 / static_cast<double>(ColourLib::COLOURS.size() + 1));
 }
 
 ////GETTERS
