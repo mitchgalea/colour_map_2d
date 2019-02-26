@@ -32,6 +32,7 @@ public:
     void normalizeProbs();
     std::pair<ColourLib::Colour, double> getMaxProb(bool check_prob = true);
     double getProb(ColourLib::Colour);
+    void printProbs();
 };
 
 }

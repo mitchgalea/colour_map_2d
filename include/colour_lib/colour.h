@@ -56,7 +56,7 @@ struct ColourInfo{
     uint8_t g;
     uint8_t b;
 };
-cv::Scalar getRGB(Colour colour);
+cv::Vec3b getRGB(Colour colour);
 uint8_t getR(Colour colour);
 uint8_t getG(Colour colour);
 uint8_t getB(Colour colour);
@@ -65,21 +65,21 @@ std::string getName(Colour colour);
 const ColourInfo RED(Colour::red, "RED", RED_H, RED_S, RED_V, RED_R, RED_G, RED_B);
 const ColourInfo GREEN(Colour::green, "GREEN", GREEN_H, GREEN_S, GREEN_V, GREEN_R, GREEN_G, GREEN_B);
 const ColourInfo BLUE(Colour::blue, "BLUE", BLUE_H, BLUE_S, BLUE_V, BLUE_R, BLUE_G, BLUE_B);
-const ColourInfo WHITE(Colour::white, "WHITE", 255, 255, 255);
+const ColourInfo BLACK(Colour::black, "BLACK", 0, 0, 0);
 
-const std::vector<ColourInfo> COLOURS = {RED, BLUE, GREEN, WHITE};
+const std::vector<ColourInfo> COLOURS = {RED, BLUE, GREEN, BLACK};
 
 class Identifier
 {
 private:
     Identifier();
     static bool inThresh(std::vector<uint8_t> thresh, uint8_t input);
-    static cv::Scalar scalarRGB2HSV(cv::Scalar rgb);
-    static cv::Scalar scalarHSV2RGB(cv::Scalar hsv);
+    static cv::Vec3b vecRGB2HSV(cv::Vec3b rgb);
+    static cv::Vec3b vecHSV2RGB(cv::Vec3b hsv);
 public:
-    static Colour identifyHSVThresh(cv::Scalar RGB);
+    static Colour identifyHSVThresh(cv::Vec3b RGB);
     static Colour identifyHSVThresh(uint8_t r, uint8_t g, uint8_t b);
-    static Colour identifyRGB(cv::Scalar RGB);
+    static Colour identifyRGB(cv::Vec3b RGB);
     static Colour identifyRGB(uint8_t r, uint8_t g, uint8_t b);
 };
 

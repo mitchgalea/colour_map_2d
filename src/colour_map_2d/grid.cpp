@@ -6,7 +6,7 @@ Grid::Grid():initialized_(false)
 {}
 
 Grid::Grid(double hit_prob, double miss_prob, int cell_occupied, double min_prob, double k)
-    :hit_prob_(hit_prob), miss_prob_(miss_prob), cell_occupied_(cell_occupied), min_prob_(min_prob), k_(k)
+    :hit_prob_(hit_prob), miss_prob_(miss_prob), cell_occupied_(cell_occupied), min_prob_(min_prob), k_(k), initialized_(false)
 {}
 
 ////GETTERS
@@ -50,27 +50,42 @@ void Grid::proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b)
 
 void Grid::updateImage(cv::Mat &image)
 {
-    for(unsigned row = 0; row < grid_info_.height; row++)
+    std::cout << "image: " << image.rows << " " << image.cols << std::endl;
+    std::cout << "grid : " << grid_info_.height << " " << grid_info_.width << std::endl;
+    for(int row = 0; row < image.rows; row++)
     {
-        for(unsigned col = 0; col < grid_info_.width; col++)
+        for(int col = 0; col < image.cols; col++)
         {
+//            unsigned index = row * grid_info_.width + col;
+
+//            if(grid_cells_[index].occupied())
+//            {
+//                image.at<cv::Vec3b>(row, col) = cv::Vec3b(0, 0, 0);
+
+//            }
+//            else
+//            {
+//                image.at<cv::Vec3b>(row, col) = cv::Vec3b(255, 255, 255);
+//            }
             unsigned index = row * grid_info_.width + col;
-            if(!grid_cells[index].occupied())
+            if(!grid_cells_[index].occupied())
             {
-                image.at<cv::Scalar>(cv::Point(col, row)) = cv::Scalar(255, 255, 255);
+                image.at<cv::Vec3b>(cv::Point(col, row)) = cv::Vec3b(255, 255, 255);
             }
             else if(!grid_cells_[index].probChecked())
             {
                 std::pair<ColourLib::Colour, double> max_prob = grid_cells_[index].getMaxProb();
-                image.at<cv::Scalar>(cv::Point(col, row)) = ColourLib::getRGB(max_prob.first);
+                //std::cout << "Colour: " << ColourLib::getName(max_prob.first) << "   Porb: " << max_prob.second << std::endl;
+                image.at<cv::Vec3b>(cv::Point(col, row)) = ColourLib::getRGB(max_prob.first);
             }
+
         }
     }
 }
 
 void Grid::initializeMapImage(cv::Mat &image)
 {
-    image = cv::Mat(grid_info_.height, grid_info_.width,  CV_8UC3, cv::Scalar(255,255,255));
+    image = cv::Mat(grid_info_.height, grid_info_.width,  CV_8UC3, cv::Vec3b(255,255,255));
 }
 
 ////PRIVATE METHODS

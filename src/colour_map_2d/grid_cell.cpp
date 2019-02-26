@@ -5,10 +5,12 @@ namespace ColourMap2D{
 ////CONSTRUCTORS
 GridCell::GridCell(unsigned index, bool occupied_in): index_(index), occupied_(occupied_in)
 {
-    for(size_t i = 0; i < ColourLib::COLOURS.size(); i++)
+    for(size_t i = 0; i < ColourLib::COLOURS.size() - 1; i++)
     {
-        colour_probs_.push_back(1 / ColourLib::COLOURS.size());
+        colour_probs_.push_back(1 / static_cast<double>(ColourLib::COLOURS.size() + 1));
     }
+    colour_probs_.push_back(2 / static_cast<double>(ColourLib::COLOURS.size() + 1));
+
 }
 
 ////GETTERS
@@ -30,20 +32,23 @@ void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, do
         else colour_probs_[i] = colour_probs_[i] * miss_prob;
     }
     normalizeProbs();
+    printProbs();
     prob_checked_ = false;
 }
 
 void GridCell::normalizeProbs()
 {
     double count = 0;
-    for(auto prob_it = colour_probs_.begin(); prob_it < colour_probs_.end(); prob_it++)
+    for(size_t i = 0; i < colour_probs_.size(); i++)
     {
-        count += *prob_it;
+        count += colour_probs_[i];
     }
-    for(auto prob_it = colour_probs_.begin(); prob_it < colour_probs_.end(); prob_it++)
+    for(size_t i = 0; i < colour_probs_.size(); i++)
     {
-        *prob_it = *prob_it / count;
+        colour_probs_[i] = colour_probs_[i] / count;
     }
+
+
 }
 
 std::pair<ColourLib::Colour, double> GridCell::getMaxProb(bool check_prob)
@@ -60,6 +65,15 @@ std::pair<ColourLib::Colour, double> GridCell::getMaxProb(bool check_prob)
     }
     if(check_prob) prob_checked_ = true;
     return max_prob;
+}
+
+void GridCell::printProbs()
+{
+    for(size_t i = 0; i < colour_probs_.size(); i++)
+    {
+        std::cout << ColourLib::getName(ColourLib::COLOURS[i].colour) << ": " << colour_probs_[i] << "   ";
+    }
+    std::cout << std::endl;
 }
 
 }

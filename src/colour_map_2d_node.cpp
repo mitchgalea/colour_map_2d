@@ -22,6 +22,7 @@
 #include "colour_map_2d/map_transform.h"
 
 #include <string>
+#include <mutex>
 #include <thread>
 #include <chrono>
 
@@ -37,6 +38,7 @@ class ColourMap2DNode{
     image_transport::Publisher image_pub_;
 
     Grid grid_;
+    std::mutex mutex_;
     cv_bridge::CvImage colour_map_image_;
     double map_image_rate_;
 
@@ -66,17 +68,20 @@ public:
         pn.param<double>("k", k, 0.5);
         pn.param<int>("cell_occupied", cell_occupied, 100);
 
-        grid_ = Grid(hit_prob, miss_prob, cell_occupied, k);
+        grid_ = Grid(hit_prob, miss_prob, cell_occupied, min_prob, k);
+        colour_map_image_.encoding = sensor_msgs::image_encodings::RGB8;
     }
 
     void ogCallback(const nav_msgs::OccupancyGrid og)
     {
+
         if(!grid_.initialized())
         {
             grid_.initializeGrid(og.info);
             grid_.initializeMapImage(colour_map_image_.image);
         }
         grid_.processOGMap(og);
+        ROS_INFO("OG Map Proccessed");
     }
 
     void pcCallback(const sensor_msgs::PointCloud2ConstPtr& pCloud)
@@ -125,20 +130,19 @@ public:
         {
             if(grid_.initialized())
             {
-                cv_bridge::CvImage colour_map_image;
-
-                colour_map_image_.encoding = sensor_msgs::image_encodings::RGB8;
                 grid_.updateImage(colour_map_image_.image);
+                ROS_INFO("Proccessed");
 
                 image_pub_.publish(colour_map_image_.toImageMsg());
-
-                rate_limiter.sleep();
             }
+            rate_limiter.sleep();
         }
     }
 
     ~ColourMap2DNode()
-    {}
+    {
+        imwrite( "image.png", colour_map_image_.image);
+    }
 
 };
 
@@ -152,9 +156,13 @@ int main(int argc, char **argv)
 
   ColourMap2DNode colour_map_2d_node(nh);
 
+  std::thread image_thread(&ColourMap2DNode::mapImageThread, std::ref(colour_map_2d_node));
+
   ros::spin();
 
   ros::shutdown();
+
+  image_thread.join();
 
   return 0;
 }

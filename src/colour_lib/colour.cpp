@@ -14,9 +14,9 @@ ColourInfo::ColourInfo(Colour colour_input, std::__cxx11::string name_input,
 {}
 
 
-Colour Identifier::identifyHSVThresh(cv::Scalar RGB)
+Colour Identifier::identifyHSVThresh(cv::Vec3b RGB)
 {
-    cv::Scalar hsv = Identifier::scalarRGB2HSV(RGB);
+    cv::Vec3b hsv = Identifier::vecRGB2HSV(RGB);
     for(auto i = 0; i < COLOURS.size(); i++)
     {
         if(Identifier::inThresh(COLOURS.at(i).h, hsv[0]) &&
@@ -28,18 +28,18 @@ Colour Identifier::identifyHSVThresh(cv::Scalar RGB)
 
 Colour Identifier::identifyHSVThresh(uint8_t r, uint8_t g, uint8_t b)
 {
-    cv::Scalar RGB(r, g, b);
-    cv::Scalar hsv = Identifier::scalarRGB2HSV(RGB);
+    cv::Vec3b RGB(r, g, b);
+    cv::Vec3b hsv = Identifier::vecRGB2HSV(RGB);
     for(auto i = 0; i < COLOURS.size(); i++)
     {
         if(Identifier::inThresh(COLOURS.at(i).h, hsv[0]) &&
            Identifier::inThresh(COLOURS.at(i).s, hsv[1]) &&
            Identifier::inThresh(COLOURS.at(i).v, hsv[2])) return COLOURS.at(i).colour;
     }
-    return Colour::white;
+    return Colour::black;
 }
 
-Colour Identifier::identifyRGB(cv::Scalar RGB)
+Colour Identifier::identifyRGB(cv::Vec3b RGB)
 {
     for(auto i = 0; i < COLOURS.size(); i++)
     {
@@ -52,7 +52,7 @@ Colour Identifier::identifyRGB(cv::Scalar RGB)
 
 Colour Identifier::identifyRGB(uint8_t r, uint8_t g, uint8_t b)
 {
-    cv::Scalar RGB(r, g, b);
+    cv::Vec3b RGB(r, g, b);
     for(auto i = 0; i < COLOURS.size(); i++)
     {
         if(RGB[0] == COLOURS.at(i).r &&
@@ -62,20 +62,20 @@ Colour Identifier::identifyRGB(uint8_t r, uint8_t g, uint8_t b)
     return Colour::white;
 }
 
-cv::Scalar Identifier::scalarRGB2HSV(cv::Scalar rgb_scalar)
+cv::Vec3b Identifier::vecRGB2HSV(cv::Vec3b rgb_vec)
 {
     cv::Mat hsv;
-    cv::Mat rgb(1,1, CV_8UC3, rgb_scalar);
+    cv::Mat rgb(1,1, CV_8UC3, rgb_vec);
     cv::cvtColor(rgb, hsv, CV_RGB2HSV);
-    return cv::Scalar(hsv.data[0], hsv.data[1], hsv.data[2]);
+    return cv::Vec3b(hsv.data[0], hsv.data[1], hsv.data[2]);
 }
 
-cv::Scalar Identifier::scalarHSV2RGB(cv::Scalar hsv_scalar)
+cv::Vec3b Identifier::vecHSV2RGB(cv::Vec3b hsv_vec)
 {
     cv::Mat rgb;
-    cv::Mat hsv(1,1, CV_8UC3, hsv_scalar);
+    cv::Mat hsv(1,1, CV_8UC3, hsv_vec);
     cv::cvtColor(hsv, rgb, CV_HSV2RGB);
-    return cv::Scalar(rgb.data[0], rgb.data[1], rgb.data[2]);
+    return cv::Vec3b(rgb.data[0], rgb.data[1], rgb.data[2]);
 }
 
 bool Identifier::inThresh(std::vector<uint8_t> thresh, uint8_t input)
@@ -88,15 +88,15 @@ bool Identifier::inThresh(std::vector<uint8_t> thresh, uint8_t input)
     return in_range;
 }
 
-cv::Scalar getRGB(Colour colour)
+cv::Vec3b getRGB(Colour colour)
 {
     for(auto i = 0; i < COLOURS.size(); i++)
     {
         if(colour == COLOURS.at(i).colour){
-            return cv::Scalar(COLOURS.at(i).r, COLOURS.at(i).g, COLOURS.at(i).b);
+            return cv::Vec3b(COLOURS.at(i).r, COLOURS.at(i).g, COLOURS.at(i).b);
         }
     }
-    return cv::Scalar(0,0,0);
+    return cv::Vec3b(0,0,0);
 }
 uint8_t getR(Colour colour)
 {
