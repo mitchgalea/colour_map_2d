@@ -3,8 +3,8 @@
 namespace ColourMap2D{
 
 ////CONSTRUCTORS
-GridCell::GridCell(unsigned index, bool occupied_in)
-    : index_(index), occupied_(occupied_in), prob_neighbour_(false)
+GridCell::GridCell(unsigned index, bool occupied_in, CellState cell_state)
+    : index_(index), occupied_(occupied_in), prob_neighbour_(false), cell_state_(cell_state)
 {
     for(size_t i = 0; i < ColourLib::COLOURS.size() - 1; i++)
     {
@@ -13,8 +13,8 @@ GridCell::GridCell(unsigned index, bool occupied_in)
     colour_probs_.push_back(2 / static_cast<double>(ColourLib::COLOURS.size() + 1));
 }
     
-GridCell::GridCell(unsigned index, int col, int row, bool occupied_in)
-    : index_(index), occupied_(occupied_in), col_(col), row_(row), prob_neighbour_(false)
+GridCell::GridCell(unsigned index, int col, int row, bool occupied_in, CellState cell_state)
+    : index_(index), occupied_(occupied_in), col_(col), row_(row), prob_neighbour_(false), cell_state_(cell_state)
 {
     for(size_t i = 0; i < ColourLib::COLOURS.size() - 1; i++)
     {
@@ -27,12 +27,14 @@ GridCell::GridCell(unsigned index, int col, int row, bool occupied_in)
 unsigned GridCell::getIndex() const {return index_;}
 int GridCell::getCol() const {return col_;}
 int GridCell::getRow() const {return row_;}
+CellState GridCell::getCellState() const {return cell_state_;}
 bool GridCell::occupied() const {return occupied_;}
 bool GridCell::probChecked() const {return prob_checked_;}
 bool GridCell::probNeighbour() const {return prob_neighbour_;}
 
 ////SETTERS
 void GridCell::setIndex(unsigned index) {index_ = index;}
+void GridCell::setCellState(CellState cell_state) {cell_state_ = cell_state;}
 void GridCell::setOccupied(bool occupied_in) {occupied_ = occupied_in;}
 
 ////METHODS
