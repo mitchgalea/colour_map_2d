@@ -25,15 +25,18 @@ GridCell::GridCell(unsigned index, int col, int row, bool occupied_in)
 
 ////GETTERS
 unsigned GridCell::getIndex() const {return index_;}
+int GridCell::getCol() const {return col_;}
+int GridCell::getRow() const {return row_;}
 bool GridCell::occupied() const {return occupied_;}
 bool GridCell::probChecked() const {return prob_checked_;}
+bool GridCell::probNeighbour() const {return prob_neighbour_;}
 
 ////SETTERS
 void GridCell::setIndex(unsigned index) {index_ = index;}
 void GridCell::setOccupied(bool occupied_in) {occupied_ = occupied_in;}
 
 ////METHODS
-void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob)
+void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob, bool neighbour)
 {
     ColourLib::Colour colour = ColourLib::Identifier::identifyHSVThresh(r, g, b);
     for(size_t i = 0; i < ColourLib::COLOURS.size(); i++)
@@ -44,6 +47,8 @@ void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, do
     normalizeProbs();
     printProbs();
     prob_checked_ = false;
+    if(neighbour) prob_neighbour_ = true;
+    else prob_neighbour_ = false;
 }
 
 void GridCell::normalizeProbs()
