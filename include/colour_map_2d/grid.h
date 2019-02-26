@@ -26,7 +26,7 @@ private:
     int cell_occupied_;
 
     bool initialized_;
-
+    
     double neighbourProb(int spaces);
 public:
     Grid();
@@ -43,7 +43,7 @@ public:
     void updateImage(cv::Mat &image);
     void initializeMapImage(cv::Mat &image);
     double findMaxProb(int spaces, int index);
-
+    void updateCellNeighbours(unsigned index, int steps);
 
 };
 
