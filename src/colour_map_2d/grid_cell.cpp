@@ -2,15 +2,65 @@
 
 namespace ColourMap2D{
 
-GridCell::GridCell(int col, int row, geometry_msgs::Pose2D pose): col_(col), row_(row), pose_(pose)
-{}
+////CONSTRUCTORS
+GridCell::GridCell(unsigned index, bool occupied_in): index_(index), occupied_(occupied_in)
+{
+    for(size_t i = 0; i < ColourLib::COLOURS.size(); i++)
+    {
+        colour_probs_.push_back(1 / ColourLib::COLOURS.size());
+    }
+}
 
-int GridCell::getCol() const {return col_;}
-int GridCell::getRow() const {return row_;}
-geometry_msgs::Pose2D GridCell::getPose() const {return pose_;}
+////GETTERS
+unsigned GridCell::getIndex() const {return index_;}
+bool GridCell::occupied() const {return occupied_;}
+bool GridCell::probChecked() const {return prob_checked_;}
 
-void GridCell::setCol(int col) {col_ = col;}
-void GridCell::setRow(int row) {row_ = row;}
-void GridCell::setPose(geometry_msgs::Pose2D pose) {pose_ = pose;}
+////SETTERS
+void GridCell::setIndex(unsigned index) {index_ = index;}
+void GridCell::setOccupied(bool occupied_in) {occupied_ = occupied_in;}
+
+////METHODS
+void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob)
+{
+    ColourLib::Colour colour = ColourLib::Identifier::identifyHSVThresh(r, g, b);
+    for(size_t i = 0; i < ColourLib::COLOURS.size(); i++)
+    {
+        if(colour == ColourLib::COLOURS[i].colour) colour_probs_[i] = colour_probs_[i] * hit_prob;
+        else colour_probs_[i] = colour_probs_[i] * miss_prob;
+    }
+    normalizeProbs();
+    prob_checked_ = false;
+}
+
+void GridCell::normalizeProbs()
+{
+    double count = 0;
+    for(auto prob_it = colour_probs_.begin(); prob_it < colour_probs_.end(); prob_it++)
+    {
+        count += *prob_it;
+    }
+    for(auto prob_it = colour_probs_.begin(); prob_it < colour_probs_.end(); prob_it++)
+    {
+        *prob_it = *prob_it / count;
+    }
+}
+
+std::pair<ColourLib::Colour, double> GridCell::getMaxProb(bool check_prob)
+{
+    std::pair<ColourLib::Colour, double> max_prob;
+    max_prob.second = 0.0;
+    for(size_t i = 0; i < colour_probs_.size(); i++)
+    {
+        if(colour_probs_[i] > max_prob.second)
+        {
+            max_prob.second = colour_probs_[i];
+            max_prob.first = ColourLib::COLOURS[i].colour;
+        }
+    }
+    if(check_prob) prob_checked_ = true;
+    return max_prob;
+}
+
 }
 

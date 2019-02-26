@@ -30,5 +30,22 @@ std::pair<int, int> MapTransform::posetoGrid(geometry_msgs::Pose2D pose, nav_msg
     }
 }
 
+int MapTransform::posetoIndex(geometry_msgs::Pose2D pose, nav_msgs::MapMetaData map_data)
+{
+    int col = round((pose.x - map_data.origin.position.x) / map_data.resolution);
+    int row = round((pose.y - map_data.origin.position.y) / map_data.resolution);
+
+    if(col >= 0 && row >= 0)
+    {
+        int index = row * map_data.width + col;
+        return index;
+    }
+    else
+    {
+        return -1;
+    }
+
+}
+
 }
 

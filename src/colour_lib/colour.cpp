@@ -2,6 +2,18 @@
 
 namespace ColourLib {
 
+ColourInfo::ColourInfo(Colour colour_input, std::string name_input,
+                       std::vector<uint8_t> h_input, std::vector<uint8_t> s_input, std::vector<uint8_t> v_input,
+                       uint8_t r_input, uint8_t g_input, uint8_t b_input)
+    :colour(colour_input), name(name_input), h(h_input), s(s_input), v(v_input), r(r_input), g(g_input), b(b_input)
+{}
+
+ColourInfo::ColourInfo(Colour colour_input, std::__cxx11::string name_input,
+                       uint8_t r_input, uint8_t g_input, uint8_t b_input)
+    :colour(colour_input), name(name_input), r(r_input), g(g_input), b(b_input)
+{}
+
+
 Colour Identifier::identifyHSVThresh(cv::Scalar RGB)
 {
     cv::Scalar hsv = Identifier::scalarRGB2HSV(RGB);

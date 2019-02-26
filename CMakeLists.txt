@@ -146,8 +146,8 @@ add_library(ColourMap2dLib
   include/colour_map_2d/colour_point_container.h
   src/colour_map_2d/grid_cell.cpp
   include/colour_map_2d/grid_cell.h
-  src/colour_map_2d/grid_cell_container.cpp
-  include/colour_map_2d/grid_cell_container.h
+  src/colour_map_2d/grid.cpp
+  include/colour_map_2d/grid.h
   src/colour_map_2d/map_transform.cpp
   include/colour_map_2d/map_transform.h
 )

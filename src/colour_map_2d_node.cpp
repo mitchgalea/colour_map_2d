@@ -1,42 +1,30 @@
-
-#include "ros/ros.h"
-#include "std_msgs/String.h"
-#include "tf/transform_datatypes.h"
-#include "geometry_msgs/PointStamped.h"
-
-#include "tf2_ros/transform_listener.h"
-#include "tf2_ros/message_filter.h"
-#include "message_filters/subscriber.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-
-#include "sensor_msgs/LaserScan.h"
-#include "sensor_msgs/image_encodings.h"
-#include "sensor_msgs/PointCloud2.h"
-#include "nav_msgs/Odometry.h"
-#include "nav_msgs/OccupancyGrid.h"
-#include "nav_msgs/MapMetaData.h"
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+#include <tf/transform_datatypes.h>
+#include <geometry_msgs/PointStamped.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <sensor_msgs/LaserScan.h>
+#include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <nav_msgs/OccupancyGrid.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
 
-#include "pcl_conversions/pcl_conversions.h"
-#include "pcl/point_cloud.h"
-#include "pcl/point_types.h"
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include <pcl_ros/point_cloud.h>
 
-#include "colour_map_2d/grid_cell_container.h"
-#include "colour_map_2d/colour_point_container.h"
+#include "colour_map_2d/grid.h"
+#include "colour_map_2d/map_transform.h"
 
-#include <sstream>
-#include <iostream>
 #include <string>
-
 #include <thread>
 #include <chrono>
-#include <deque>
-#include <mutex>
-#include <random>
+
 
 using namespace ColourMap2D;
 
@@ -45,30 +33,33 @@ class ColourMap2DNode{
     ros::NodeHandle nh_;
     ros::Subscriber og_sub_;
     ros::Subscriber pc_sub_;
+    image_transport::ImageTransport it_;
+    image_transport::Publisher image_pub_;
 
-    GridCellContainer grid_cells_;
-    ColourPointContainer colour_points_;
-    nav_msgs::MapMetaData map_data;
+    Grid grid_;
+    cv_bridge::CvImage colour_map_image_;
 
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
-    //tf2_ros::MessageFilter<geometry_msgs::PointStamped> tf_filter_;
     std::string target_frame_;
 
 public:
     ColourMap2DNode(ros::NodeHandle nh)
-    : nh_(nh), target_frame_("map"), tf_listener_(tf_buffer_)
+    : nh_(nh), it_(nh), target_frame_("map"), tf_listener_(tf_buffer_)
     {
         og_sub_ = nh_.subscribe("/map", 2, &ColourMap2DNode::ogCallback, this);
         pc_sub_ = nh_.subscribe<sensor_msgs::PointCloud2>("/camera/depth/points/filtered", 2, &ColourMap2DNode::pcCallback, this);
-        //tf_filter_.registerCallback( boost::bind(&ColourMap2DNode::pcCallback, this, _1) );
+        image_pub_ = it_.advertise("/colour_map_image", 1);
     }
 
-    void ogCallback(const nav_msgs::OccupancyGrid& og)
+    void ogCallback(const nav_msgs::OccupancyGrid og)
     {
-        grid_cells_.processOGMap(og);
-        map_data = og.info;
-        ROS_INFO("Occupied Cells: %d", static_cast<int>(grid_cells_.size()));
+        if(!grid_.initialized())
+        {
+            grid_.initializeGrid(og.info);
+            grid_.initializeMapImage(colour_map_image_.image);
+        }
+        grid_.processOGMap(og);
     }
 
     void pcCallback(const sensor_msgs::PointCloud2ConstPtr& pCloud)
@@ -92,33 +83,45 @@ public:
             }
             catch (tf2::TransformException &ex) 
             {
-              ROS_WARN("Failure %s\n", ex.what()); //Print exception which was caught
+              ROS_WARN("Failure %s\n", ex.what());
               exception = true;
 
             }
             if(!exception)
             {
-                point.x = point_out.point.x;
-                point.y = point_out.point.y;
-                point.z = point_out.point.z;
-                uint8_t r_hold = point.r;
-                point.r = point.b;
-                point.b = r_hold;
-                colour_points_.processPoint(point);
+                geometry_msgs::Pose2D pose;
+                pose.x = point_out.point.x;
+                pose.y = point_out.point.y;
+                int point_index = ColourMap2D::MapTransform::posetoIndex(pose, grid_.getGridInfo());
+                grid_.proccessPoint(point_index, point.b, point.g, point.r);
             }
         }
 
         ROS_INFO("Points Proccessed");
     }
 
-    ~ColourMap2DNode()
+    void mapImageThread()
     {
-        std::string path("image.png");
-        std::cout << "size: " << colour_points_.size() << std::endl;
-        cv::Mat image= colour_points_.outputImage(map_data);
-        imwrite( path, image);
-        std::cout << "image done" << std::endl;
+        ros::Rate rate_limiter(1);
+
+        while(ros::ok())
+        {
+            if(grid_.initialized())
+            {
+                cv_bridge::CvImage colour_map_image;
+
+                colour_map_image_.encoding = sensor_msgs::image_encodings::RGB8;
+                grid_.updateImage(colour_map_image_.image);
+
+                image_pub_.publish(colour_map_image_.toImageMsg());
+
+                rate_limiter.sleep();
+            }
+        }
     }
+
+    ~ColourMap2DNode()
+    {}
 
 };
 
