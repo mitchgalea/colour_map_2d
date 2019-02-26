@@ -90,40 +90,40 @@ bool Identifier::inThresh(std::vector<uint8_t> thresh, uint8_t input)
 
 cv::Vec3b getRGB(Colour colour)
 {
-    for(auto i = 0; i < COLOURS.size(); i++)
+    for(auto i = 0; i < ALL_COLOURS.size(); i++)
     {
-        if(colour == COLOURS.at(i).colour){
-            return cv::Vec3b(COLOURS.at(i).r, COLOURS.at(i).g, COLOURS.at(i).b);
+        if(colour == ALL_COLOURS.at(i).colour){
+            return cv::Vec3b(ALL_COLOURS.at(i).r, ALL_COLOURS.at(i).g, ALL_COLOURS.at(i).b);
         }
     }
     return cv::Vec3b(0,0,0);
 }
 uint8_t getR(Colour colour)
 {
-    for(auto i = 0; i < COLOURS.size(); i++)
+    for(auto i = 0; i < ALL_COLOURS.size(); i++)
     {
-        if(colour == COLOURS.at(i).colour){
-            return COLOURS.at(i).r;
+        if(colour == ALL_COLOURS.at(i).colour){
+            return ALL_COLOURS.at(i).r;
         }
     }
     return 0;
 }
 uint8_t getG(Colour colour)
 {
-    for(auto i = 0; i < COLOURS.size(); i++)
+    for(auto i = 0; i < ALL_COLOURS.size(); i++)
     {
-        if(colour == COLOURS.at(i).colour){
-            return COLOURS.at(i).g;
+        if(colour == ALL_COLOURS.at(i).colour){
+            return ALL_COLOURS.at(i).g;
         }
     }
     return 0;
 }
 uint8_t getB(Colour colour)
 {
-    for(auto i = 0; i < COLOURS.size(); i++)
+    for(auto i = 0; i < ALL_COLOURS.size(); i++)
     {
-        if(colour == COLOURS.at(i).colour){
-            return COLOURS.at(i).b;
+        if(colour == ALL_COLOURS.at(i).colour){
+            return ALL_COLOURS.at(i).b;
         }
     }
     return 0;
@@ -131,10 +131,10 @@ uint8_t getB(Colour colour)
 
 std::string getName(Colour colour)
 {
-    for(auto i = 0; i < COLOURS.size(); i++)
+    for(auto i = 0; i < ALL_COLOURS.size(); i++)
     {
-        if(colour == COLOURS.at(i).colour){
-            return COLOURS.at(i).name;
+        if(colour == ALL_COLOURS.at(i).colour){
+            return ALL_COLOURS.at(i).name;
         }
     }
     return " ";
