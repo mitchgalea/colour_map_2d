@@ -13,10 +13,14 @@ private:
     unsigned index_;
     bool occupied_;
     bool prob_checked_;
-
+    bool prob_neighbour_;
+    int col_;
+    int row_;
+    
     std::vector<double> colour_probs_;
 public:
     GridCell(unsigned index, bool occupied_in = false);
+    GridCell(unsigned index, int col, int row, bool occupied_in = false);
 
     ////GETTERS
     unsigned getIndex() const;
