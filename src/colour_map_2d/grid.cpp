@@ -59,14 +59,14 @@ void Grid::updateImage(cv::Mat &image)
             unsigned index = row * grid_info_.width + col;
             if(!grid_cells_[index].occupied())
             {
-                image.at<cv::Vec3b>(cv::Point(col, row)) = cv::Vec3b(255, 255, 255);
+                image.at<cv::Vec3b>(cv::Point(col, row)) = ColourLib::getRGB(ColourLib::Colour::white);
             }
             else if(!grid_cells_[index].probChecked())
             {
                 std::pair<ColourLib::Colour, double> max_prob = grid_cells_[index].getMaxProb();
-                image.at<cv::Vec3b>(cv::Point(col, row)) = ColourLib::getRGB(max_prob.first);
+                if(max_prob.second > min_prob_) image.at<cv::Vec3b>(cv::Point(col, row)) = ColourLib::getRGB(max_prob.first);
+                else image.at<cv::Vec3b>(cv::Point(col, row)) = ColourLib::getRGB(ColourLib::Colour::black);
             }
-
         }
     }
 }
@@ -78,8 +78,8 @@ void Grid::initializeMapImage(cv::Mat &image)
     
 void Grid::updateCellNeighbours(unsigned index, int steps)
 {
-    int cell_col = grid_cells_[index].col_;
-    int cell_row = grid_cells_[index].row_;
+    int cell_col = grid_cells_[index].getCol();
+    int cell_row = grid_cells_[index].getRow();
     
     for(int row = cell_row - steps; row < cell_row + steps; row ++)
     {
@@ -95,6 +95,18 @@ void Grid::updateCellNeighbours(unsigned index, int steps)
                                                     neighbourProb(spaces), miss_prob_, true);
                 }
             }
+        }
+    }
+}
+    
+void Grid::updateGridNeighbours(int steps)
+{
+    for(size_t i = 0; i < og_map.data.size(); i++)
+    {
+        std::pair<ColourLib::Colour, double> max_prob = grid_cells_[i].getMaxProb();
+        if(max_prob.second < min_prob)
+        {
+            updateCellNeighbours(i, steps);
         }
     }
 }
