@@ -24,8 +24,11 @@ public:
 
     ////GETTERS
     unsigned getIndex() const;
+    int getCol() const;
+    int getRow() const;
     bool occupied() const;
     bool probChecked() const;
+    bool probNeighbour() const;
 
     ////SETTERS
     void setIndex(unsigned index);
