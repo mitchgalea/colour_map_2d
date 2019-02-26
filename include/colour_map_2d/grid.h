@@ -13,6 +13,13 @@
 
 namespace ColourMap2D{
 
+enum class CellState{
+    obstacle,
+    occupied,
+    empty,
+    unknown
+};
+
 class Grid
 {
 private:
@@ -23,14 +30,18 @@ private:
     double miss_prob_;
     double min_prob_;
     double k_;
+    int cell_obstacle_
     int cell_occupied_;
+    int cell_empty_;
+    int cell_unknown_;
 
     bool initialized_;
     
     double neighbourProb(int spaces);
 public:
     Grid();
-    Grid(double hit_prob, double miss_prob, int cell_occupied, double min_prob, double k);
+    Grid(double hit_prob, double miss_prob, double min_prob, double k, 
+         int cell_occupied, int cell_obstacle, int cell_empty, int cell_unkown);
 
     ////GETTERS
     nav_msgs::MapMetaData getGridInfo() const;
