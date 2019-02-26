@@ -47,5 +47,15 @@ int MapTransform::posetoIndex(geometry_msgs::Pose2D pose, nav_msgs::MapMetaData 
 
 }
 
+geometry_msgs::Pose2D MapTransform::indextoPose(int index, nav_msgs::MapMetaData map_data)
+{
+
+}
+
+std::pair<int, int> MapTransform::indextoGrid(int index, nav_msgs::MapMetaData map_data)
+{
+
+}
+
 }
 

@@ -21,14 +21,16 @@ private:
 
     double hit_prob_;
     double miss_prob_;
+    double min_prob_;
+    double k_;
     int cell_occupied_;
 
-    std::mutex mutex_;
-
     bool initialized_;
+
+    double neighbourProb(int spaces);
 public:
     Grid();
-    Grid(double hit_prob, double miss_prob, int cell_occupied);
+    Grid(double hit_prob, double miss_prob, int cell_occupied, double min_prob, double k);
 
     ////GETTERS
     nav_msgs::MapMetaData getGridInfo() const;
@@ -40,6 +42,8 @@ public:
     void proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b);
     void updateImage(cv::Mat &image);
     void initializeMapImage(cv::Mat &image);
+    double findMaxProb(int spaces, int index);
+
 
 };
 

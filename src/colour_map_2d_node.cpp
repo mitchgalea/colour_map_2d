@@ -38,6 +38,7 @@ class ColourMap2DNode{
 
     Grid grid_;
     cv_bridge::CvImage colour_map_image_;
+    double map_image_rate_;
 
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
@@ -50,6 +51,22 @@ public:
         og_sub_ = nh_.subscribe("/map", 2, &ColourMap2DNode::ogCallback, this);
         pc_sub_ = nh_.subscribe<sensor_msgs::PointCloud2>("/camera/depth/points/filtered", 2, &ColourMap2DNode::pcCallback, this);
         image_pub_ = it_.advertise("/colour_map_image", 1);
+
+        double hit_prob;
+        double miss_prob;
+        double min_prob;
+        double k;
+        int cell_occupied;
+
+        ros::NodeHandle pn("~");
+        pn.param<double>("rate", map_image_rate_, 1.0);
+        pn.param<double>("hit_prob", hit_prob, 0.6);
+        pn.param<double>("miss_prob", miss_prob, 0.2);
+        pn.param<double>("min_prob", min_prob, 0.7);
+        pn.param<double>("k", k, 0.5);
+        pn.param<int>("cell_occupied", cell_occupied, 100);
+
+        grid_ = Grid(hit_prob, miss_prob, cell_occupied, k);
     }
 
     void ogCallback(const nav_msgs::OccupancyGrid og)
