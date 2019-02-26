@@ -56,17 +56,6 @@ void Grid::updateImage(cv::Mat &image)
     {
         for(int col = 0; col < image.cols; col++)
         {
-//            unsigned index = row * grid_info_.width + col;
-
-//            if(grid_cells_[index].occupied())
-//            {
-//                image.at<cv::Vec3b>(row, col) = cv::Vec3b(0, 0, 0);
-
-//            }
-//            else
-//            {
-//                image.at<cv::Vec3b>(row, col) = cv::Vec3b(255, 255, 255);
-//            }
             unsigned index = row * grid_info_.width + col;
             if(!grid_cells_[index].occupied())
             {
@@ -75,7 +64,6 @@ void Grid::updateImage(cv::Mat &image)
             else if(!grid_cells_[index].probChecked())
             {
                 std::pair<ColourLib::Colour, double> max_prob = grid_cells_[index].getMaxProb();
-                //std::cout << "Colour: " << ColourLib::getName(max_prob.first) << "   Porb: " << max_prob.second << std::endl;
                 image.at<cv::Vec3b>(cv::Point(col, row)) = ColourLib::getRGB(max_prob.first);
             }
 
@@ -86,6 +74,29 @@ void Grid::updateImage(cv::Mat &image)
 void Grid::initializeMapImage(cv::Mat &image)
 {
     image = cv::Mat(grid_info_.height, grid_info_.width,  CV_8UC3, cv::Vec3b(255,255,255));
+}
+    
+void Grid::updateCellNeighbours(unsigned index, int steps)
+{
+    int cell_col = grid_cells_[index].col_;
+    int cell_row = grid_cells_[index].row_;
+    
+    for(int row = cell_row - steps; row < cell_row + steps; row ++)
+    {
+        for(int col = cell_col - steps; col < cell_col + steps; col ++)
+        {
+            if(row >= 0 && row <= grid_info_.height && col >=0 && col <= grid_info.width)
+            {
+                unsigned neighbour_index = row * grid_info_.width + col;
+                std::pair<ColourLib::Colour, double> max_prob = grid_cells_[neighbour_index].getMaxProb();
+                if(!grid_cells_[neighbour_index].probNeighbour() && max_prob.second > min_prob_)
+                {
+                    grid_cells_[index].processPoint(ColourLib::getR(max_prob.first), ColourLib::getG(max_prob.first), ColourLib::getB(max_prob.first), 
+                                                    neighbourProb(spaces), miss_prob_, true);
+                }
+            }
+        }
+    }
 }
 
 ////PRIVATE METHODS
