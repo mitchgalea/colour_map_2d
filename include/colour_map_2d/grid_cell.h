@@ -32,7 +32,7 @@ public:
     void setOccupied(bool occupied_in);
 
     ////METHODS
-    void processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob);
+    void processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob, bool neighbour = false);
     void normalizeProbs();
     std::pair<ColourLib::Colour, double> getMaxProb(bool check_prob = true);
     double getProb(ColourLib::Colour);
