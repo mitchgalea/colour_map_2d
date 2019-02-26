@@ -37,7 +37,8 @@ enum class Colour {
     blue,
     green,
     white,
-    black
+    black,
+    grey
 };
 
 struct ColourInfo{
@@ -66,8 +67,11 @@ const ColourInfo RED(Colour::red, "RED", RED_H, RED_S, RED_V, RED_R, RED_G, RED_
 const ColourInfo GREEN(Colour::green, "GREEN", GREEN_H, GREEN_S, GREEN_V, GREEN_R, GREEN_G, GREEN_B);
 const ColourInfo BLUE(Colour::blue, "BLUE", BLUE_H, BLUE_S, BLUE_V, BLUE_R, BLUE_G, BLUE_B);
 const ColourInfo BLACK(Colour::black, "BLACK", 0, 0, 0);
+const ColourInfo WHITE(Colour::white, "WHITE", 255, 255, 255);
+const ColourInfo GREY(Colour::grey, "GREY", 150, 150, 150);
 
 const std::vector<ColourInfo> COLOURS = {RED, BLUE, GREEN, BLACK};
+const std::vector<ColourInfo> ALL_COLOURS = {RED, BLUE, GREEN, BLACK};
 
 class Identifier
 {
