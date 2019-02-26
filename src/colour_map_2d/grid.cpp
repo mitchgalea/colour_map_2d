@@ -5,8 +5,10 @@ namespace ColourMap2D {
 Grid::Grid():initialized_(false)
 {}
 
-Grid::Grid(double hit_prob, double miss_prob, int cell_occupied, double min_prob, double k)
-    :hit_prob_(hit_prob), miss_prob_(miss_prob), cell_occupied_(cell_occupied), min_prob_(min_prob), k_(k), initialized_(false)
+Grid::Grid(double hit_prob, double miss_prob, double min_prob, double k, 
+         int cell_occupied, int cell_obstacle, int cell_empty, int cell_unkown)
+    :hit_prob_(hit_prob), miss_prob_(miss_prob), min_prob_(min_prob), k_(k), initialized_(false),
+    cell_occupied_(cell_occupied), cell_obstacle_(cell_obstacle), cell_empty_(cell_empty), cell_unknown_(cell_unknown)
 {}
 
 ////GETTERS
