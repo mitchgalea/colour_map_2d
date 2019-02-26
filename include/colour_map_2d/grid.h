@@ -44,7 +44,7 @@ public:
     void initializeMapImage(cv::Mat &image);
     double findMaxProb(int spaces, int index);
     void updateCellNeighbours(unsigned index, int steps);
-
+    void updateGridNeighbours(int steps);
 };
 
 }
