@@ -14,30 +14,40 @@ Grid::Grid(double hit_prob, double miss_prob, double min_prob,
 {}
 
 ////GETTERS
-nav_msgs::MapMetaData Grid::getGridInfo() const {return grid_info_;}
 bool Grid::initialized() const { return initialized_; }
 
 ////METHODS
 void Grid::processOGMap(const nav_msgs::OccupancyGrid &og_map)
 {
+    std::lock_guard<std::mutex> locker(mutex_);
     if(og_map.info.width != grid_info_.width || og_map.info.height != grid_info_.height)
     {
         ROS_ERROR("MAP SIZE DIFFERS");
     }
     for(size_t i = 0; i < og_map.data.size(); i++)
     {
-        if(og_map.data[i] == cell_occupied_) grid_cells_[i].setCellState(CellState::occupied);
-        
-        else if(og_map.data[i] == cell_obstacle_) grid_cells_[i].setCellState(CellState::obstacle);
-        
-        else if(og_map.data[i] == cell_empty_) grid_cells_[i].setCellState(CellState::empty);
-        
-        else grid_cells_[i].setCellState(CellState::unknown);   
+        if(og_map.data[i] == cell_occupied_ && grid_cells_[i].getCellState != CellState::occupied)
+        {
+            grid_cells_[i].setCellState(CellState::occupied);
+        }
+        else if(og_map.data[i] == cell_obstacle_ && grid_cells_[i].getCellState != CellState::obstacle)
+        {
+            grid_cells_[i].setCellState(CellState::obstacle);
+        }
+        else if(og_map.data[i] == cell_empty_ && grid_cells_[i].getCellState != CellState::empty) 
+        {
+            grid_cells_[i].setCellState(CellState::empty);
+        }
+        else if(og_map.data[i] == cell_unknown_ && grid_cells_[i].getCellState != CellState::unknown)
+        {
+            grid_cells_[i].setCellState(CellState::unknown);   
+        }
     }
 }
 
 void Grid::initializeGrid(nav_msgs::MapMetaData og_map_data)
 {
+    std::lock_guard<std::mutex> locker(mutex_);
     grid_info_ = og_map_data;
     for(unsigned row = 0; row < og_map_data.height; row++)
     {
@@ -50,12 +60,12 @@ void Grid::initializeGrid(nav_msgs::MapMetaData og_map_data)
     initialized_ = true;
 }
 
-void Grid::proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b, int spawn)
+/*void Grid::proccessPoint(int index, uint8_t r, uint8_t g, uint8_t , int spawn)
 {
     if(index > 0)
     {
         grid_cells_[index].processPoint(r, g, b, hit_prob_, miss_prob_);
-        if(spawn > 0 && grid_cells_[index].getCellState() == CellState::obstacle)
+        if(spawn_size_ > 0 && grid_cells_[index].getCellState() == CellState::obstacle)
         {
             unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
             std::default_random_engine generator (seed);
@@ -64,7 +74,7 @@ void Grid::proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b, int spawn)
             {
                 std::normal_distribution<double> noise_distribution(0.0, spawn_noise_);
                 geometry_msgs::Pose2D point_pose = MapTransform::indextoPose(index, grid_info_);
-                for(int i = 0; i < spawn; i++)
+                for(int i = 0; i < spawn_size_; i++)
                 {
                     geometry_msgs::Pose2D temp_pose;
                     temp_pose.x = point_pose.x + noise_distribution(generator);
@@ -75,34 +85,27 @@ void Grid::proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b, int spawn)
             }
         }
     }
-}
+}*/
          
 void Grid::proccessPoints(std::vector<ColourPoint> &points)
 {
+    std::lock_guard<std::mutex> locker(mutex_);
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator (seed);
     std::uniform_int_distribution<int> spawn_distribution(0, spawn_rate_);  
     std::normal_distribution<double> noise_distribution(0.0, spawn_noise_);
-    if(index > 0)
+         
+    for(size_t i = 0; i < points.size(); i++)
     {
-        grid_cells_[index].processPoint(r, g, b, hit_prob_, miss_prob_);
-        if(spawn > 0 && grid_cells_[index].getCellState() == CellState::obstacle)
+        unsigned index = ColourMap2D::MapTransform::posetoIndex(points[i].getX(), points[i].getY(), grid_.getGridInfo());
+        grid_cells_[index].processPoint(points[i], hit_prob_, miss_prob_);
+        if(spawn_size > 0 && grid_cells_[index].getCellState() == CellState::obstacle && spawn_distribution(generator) == spawn_rate_)
         {
-            unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-            std::default_random_engine generator (seed);
-            std::uniform_int_distribution<int> spawn_distribution(0, spawn_rate_);
-            if(spawn_distribution(generator) == spawn_rate_)
+            for(int i = 0; i < spawn_size_; i++)
             {
-                std::normal_distribution<double> noise_distribution(0.0, spawn_noise_);
-                geometry_msgs::Pose2D point_pose = MapTransform::indextoPose(index, grid_info_);
-                for(int i = 0; i < spawn; i++)
-                {
-                    geometry_msgs::Pose2D temp_pose;
-                    temp_pose.x = point_pose.x + noise_distribution(generator);
-                    temp_pose.y = point_pose.y + noise_distribution(generator);
-                    unsigned temp_index = MapTransform::posetoIndex(temp_pose, grid_info_);
-                    grid_cells_[temp_index].processPoint(r, g, b, hit_prob_, miss_prob_);
-                }
+                ColourPoint point(points[i], noise_distribution(generator), noise_distribution(generator));
+                unsigned temp_index = MapTransform::xytoIndex(point.getX(), point.getY(), grid_info_);
+                grid_cells_[temp_index].proccessPoint(point, hit_prob_, miss_prob_);
             }
         }
     }
@@ -110,6 +113,7 @@ void Grid::proccessPoints(std::vector<ColourPoint> &points)
 
 void Grid::updateImage(cv::Mat &image)
 {
+    std::lock_guard<std::mutex> locker(mutex_);
     for(int row = 0; row < image.rows; row++)
     {
         for(int col = 0 ; col < image.cols; col++)
@@ -147,6 +151,7 @@ void Grid::updateImage(cv::Mat &image)
 
 void Grid::initializeMapImage(cv::Mat &image)
 {
+    std::lock_guard<std::mutex> locker(mutex_);
     image = cv::Mat(grid_info_.height - 2*frame_, grid_info_.width - 2*frame_,  CV_8UC3, cv::Vec3b(150, 150, 150));
 }
 
