@@ -16,9 +16,9 @@ public:
     ////GETTERS
     double getX() const;
     double getY() const;
-    double getR() const;
-    double getG() const;
-    double getB() const;
+    uint8_t getR() const;
+    uint8_t getG() const;
+    uint8_t getB() const;
 };
 
 }
