@@ -1,3 +1,4 @@
+#include "colour_map_2d/colour_point.h"
 #include "colour_lib/colour.h"
 #include <vector>
 #include <utility>
@@ -20,34 +21,26 @@ private:
     unsigned index_;
     bool occupied_;
     CellState cell_state_;
-    bool prob_checked_;
-    bool prob_neighbour_;
-    int col_;
-    int row_;
     
     std::vector<double> colour_probs_;
 public:
-    GridCell(unsigned index, bool occupied_in = false, CellState cell_state = CellState::unknown);
-    GridCell(unsigned index, int col, int row, bool occupied_in = false, CellState cell_state = CellState::unknown);
+    GridCell(unsigned index, bool CellState cell_state = CellState::unknown);
 
     ////GETTERS
     unsigned getIndex() const;
     int getCol() const;
     int getRow() const;
     CellState getCellState() const;
-    bool occupied() const;
-    bool probChecked() const;
-    bool probNeighbour() const;
 
     ////SETTERS
     void setIndex(unsigned index);
-    void setOccupied(bool occupied_in);
     void setCellState(CellState cell_state);
 
     ////METHODS
-    void processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob, bool neighbour = false);
+    void processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob);
+    void processPoint(ColourPoint point,  double hit_prob, double miss_prob);
     void normalizeProbs();
-    std::pair<ColourLib::Colour, double> getMaxProb(bool check_prob = true);
+    std::pair<ColourLib::Colour, double> getMaxProb();
     double getProb(ColourLib::Colour);
     void printProbs();
 };
