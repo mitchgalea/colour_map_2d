@@ -40,7 +40,7 @@ void GridCell::setOccupied(bool occupied_in) {occupied_ = occupied_in;}
 ////METHODS
 void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob, bool neighbour)
 {
-    if(cell_state_ == Cellstate::obstacle)
+    if(cell_state_ == CellState::obstacle)
     {
         ColourLib::Colour colour = ColourLib::Identifier::identifyHSVThresh(r, g, b);
         for(size_t i = 0; i < ColourLib::COLOURS.size(); i++)

@@ -49,12 +49,21 @@ int MapTransform::posetoIndex(geometry_msgs::Pose2D pose, nav_msgs::MapMetaData 
 
 geometry_msgs::Pose2D MapTransform::indextoPose(int index, nav_msgs::MapMetaData map_data)
 {
-
+    std::pair<int, int> grid_cell = indextoGrid(index, map_data);
+    return gridtoPose(grid_cell.first, grid_cell.second, map_data);
 }
 
 std::pair<int, int> MapTransform::indextoGrid(int index, nav_msgs::MapMetaData map_data)
 {
+    std::pair<int, int> grid_cell;
+    grid_cell.second = index / map_data.width;
+    grid_cell.first = index % map_data.width;
+    return grid_cell;
+}
 
+int MapTransform::gridtoIndex(int col, int row, nav_msgs::MapMetaData map_data)
+{
+    return row * map_data.width + col;
 }
 
 }

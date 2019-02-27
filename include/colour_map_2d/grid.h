@@ -34,6 +34,7 @@ private:
     
     double spawn_noise_;
     int spawn_rate_;
+    int spawn_size_;
 
     bool initialized_;
     
@@ -42,7 +43,7 @@ public:
     Grid();
     Grid(double hit_prob, double miss_prob, double min_prob, double k,
          int cell_occupied, int cell_obstacle, int cell_empty, int cell_unknown,
-         int spawn_rate, double spawn_noise, int frame);
+         int spawn_rate, double spawn_noise, int spawn_size, int frame);
 
     ////GETTERS
     nav_msgs::MapMetaData getGridInfo() const;

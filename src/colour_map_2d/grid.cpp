@@ -7,10 +7,10 @@ Grid::Grid():initialized_(false)
 
 Grid::Grid(double hit_prob, double miss_prob, double min_prob, double k,
          int cell_occupied, int cell_obstacle, int cell_empty, int cell_unknown,
-         int spawn_rate, double spawn_noise, int frame)
-    :hit_prob_(hit_prob), miss_prob_(miss_prob), min_prob_(min_prob), k_(k), initialized_(false), frame_(80),
+         int spawn_rate, double spawn_noise, int spawn_size, int frame)
+    :hit_prob_(hit_prob), miss_prob_(miss_prob), min_prob_(min_prob), k_(k), initialized_(false),
     cell_occupied_(cell_occupied), cell_obstacle_(cell_obstacle), cell_empty_(cell_empty), cell_unknown_(cell_unknown),
-    spawn_rate_(spawn_rate), spawn_noise_(spawn_noise), frame_(frame)
+    spawn_rate_(spawn_rate), spawn_noise_(spawn_noise), spawn_size_(spawn_size), frame_(frame)
 {}
 
 ////GETTERS
@@ -78,7 +78,7 @@ void Grid::proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b, int spawn)
                     geometry_msgs::Pose2D temp_pose;
                     temp_pose.x = point_pose.x + noise_distribution(generator);
                     temp_pose.y = point_pose.y + noise_distribution(generator);
-                    unsigned temp_index = MapTransform::posetoIndex(temp_pose);
+                    unsigned temp_index = MapTransform::posetoIndex(temp_pose, grid_info_);
                     grid_cells_[temp_index].processPoint(r, g, b, hit_prob_, miss_prob_);
                 }
             }

@@ -76,9 +76,9 @@ public:
         pn.param<double>("min_prob", min_prob, 0.7);
         pn.param<double>("k", k, 0.5);
         pn.param<int>("cell_occupied", cell_occupied, 50);
-        pn.param<int>("cell_occupied", cell_obstacle, 100);
-        pn.param<int>("cell_occupied", cell_unknown, -1);
-        pn.param<int>("cell_occupied", cell_empty, 0);
+        pn.param<int>("cell_obstacle", cell_obstacle, 100);
+        pn.param<int>("cell_unknown", cell_unknown, -1);
+        pn.param<int>("cell_empty", cell_empty, 0);
         pn.param<int>("spawn_number", spawn_size, 10);
         pn.param<int>("spawn_rate", spawn_rate, 100);
         pn.param<int>("frame", frame, 100);
