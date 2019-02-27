@@ -58,7 +58,16 @@ public:
         double miss_prob;
         double min_prob;
         double k;
+        
         int cell_occupied;
+        int cell_obstacle;
+        int cell_unknown;
+        int cell_empty;
+        int frame;
+        
+        double spawn_noise;
+        int spawn_rate;
+        int spawn_number;
 
         ros::NodeHandle pn("~");
         pn.param<double>("rate", map_image_rate_, 1.0);
@@ -66,9 +75,16 @@ public:
         pn.param<double>("miss_prob", miss_prob, 0.2);
         pn.param<double>("min_prob", min_prob, 0.7);
         pn.param<double>("k", k, 0.5);
-        pn.param<int>("cell_occupied", cell_occupied, 100);
+        pn.param<int>("cell_occupied", cell_occupied, 50);
+        pn.param<int>("cell_occupied", cell_obstacle, 100);
+        pn.param<int>("cell_occupied", cell_unknown, -1);
+        pn.param<int>("cell_occupied", cell_empty, 0);
+        pn.param<int>("spawn_number", spawn_number, 10);
+        pn.param<int>("spawn_rate", spawn_rate, 100);
+        pn.param<int>("frame", frame, 100);
+        pn.param<double>("spawn_noise", spawn_noise, 0.01);
 
-        grid_ = Grid(hit_prob, miss_prob, min_prob, k, 50, 100, 0, -1);
+        grid_ = Grid(hit_prob, miss_prob, min_prob, k, cell_occupied, cell_obstacle, cell_empty, cell_unknown);
         colour_map_image_.encoding = sensor_msgs::image_encodings::RGB8;
     }
 
