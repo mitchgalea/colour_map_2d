@@ -13,8 +13,6 @@
 
 namespace ColourMap2D{
 
-
-
 class Grid
 {
 private:
@@ -24,7 +22,6 @@ private:
     double hit_prob_;
     double miss_prob_;
     double min_prob_;
-    double k_;
     
     int cell_obstacle_;
     int cell_occupied_;
@@ -38,10 +35,9 @@ private:
 
     bool initialized_;
     
-    double neighbourProb(int spaces);
 public:
     Grid();
-    Grid(double hit_prob, double miss_prob, double min_prob, double k,
+    Grid(double hit_prob, double miss_prob, double min_prob,
          int cell_occupied, int cell_obstacle, int cell_empty, int cell_unknown,
          int spawn_rate, double spawn_noise, int spawn_size, int frame);
 
@@ -52,12 +48,11 @@ public:
     ////METHODS
     void processOGMap(const nav_msgs::OccupancyGrid &og_map);
     void initializeGrid(nav_msgs::MapMetaData og_map_data);
-    void proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b, int spawn = 0);
+    void proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b);
+    void proccessPoints(std::vector<ColourPoint> &points);
     void updateImage(cv::Mat &image);
     void initializeMapImage(cv::Mat &image);
     double findMaxProb(int spaces, int index);
-    void updateCellNeighbours(unsigned index, int steps);
-    void updateGridNeighbours(int steps);
 };
 
 }
