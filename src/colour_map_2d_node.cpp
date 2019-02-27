@@ -68,7 +68,7 @@ public:
         pn.param<double>("k", k, 0.5);
         pn.param<int>("cell_occupied", cell_occupied, 100);
 
-        grid_ = Grid(hit_prob, miss_prob, cell_occupied, min_prob, k);
+        grid_ = Grid(hit_prob, miss_prob, min_prob, k, 50, 100, 0, -1);
         colour_map_image_.encoding = sensor_msgs::image_encodings::RGB8;
     }
 
@@ -105,7 +105,7 @@ public:
             }
             catch (tf2::TransformException &ex) 
             {
-              ROS_WARN("Failure %s\n", ex.what());
+              //ROS_WARN("Failure %s\n", ex.what());
               exception = true;
 
             }

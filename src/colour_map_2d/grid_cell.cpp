@@ -47,7 +47,6 @@ void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, do
         else colour_probs_[i] = colour_probs_[i] * miss_prob;
     }
     normalizeProbs();
-    printProbs();
     prob_checked_ = false;
     if(neighbour) prob_neighbour_ = true;
     else prob_neighbour_ = false;

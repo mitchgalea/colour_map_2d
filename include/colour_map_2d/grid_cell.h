@@ -7,6 +7,13 @@
 
 namespace ColourMap2D{
 
+enum class CellState{
+    obstacle,
+    occupied,
+    empty,
+    unknown
+};
+
 class GridCell
 {
 private:
@@ -20,8 +27,8 @@ private:
     
     std::vector<double> colour_probs_;
 public:
-    GridCell(unsigned index, bool occupied_in = false, CellState cell_state = empty);
-    GridCell(unsigned index, int col, int row, bool occupied_in = false, CellState cell_state = empty);
+    GridCell(unsigned index, bool occupied_in = false, CellState cell_state = CellState::unknown);
+    GridCell(unsigned index, int col, int row, bool occupied_in = false, CellState cell_state = CellState::unknown);
 
     ////GETTERS
     unsigned getIndex() const;
