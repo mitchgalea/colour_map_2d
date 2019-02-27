@@ -40,16 +40,19 @@ void GridCell::setOccupied(bool occupied_in) {occupied_ = occupied_in;}
 ////METHODS
 void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob, bool neighbour)
 {
-    ColourLib::Colour colour = ColourLib::Identifier::identifyHSVThresh(r, g, b);
-    for(size_t i = 0; i < ColourLib::COLOURS.size(); i++)
+    if(cell_state_ == Cellstate::obstacle)
     {
-        if(colour == ColourLib::COLOURS[i].colour) colour_probs_[i] = colour_probs_[i] * hit_prob;
-        else colour_probs_[i] = colour_probs_[i] * miss_prob;
+        ColourLib::Colour colour = ColourLib::Identifier::identifyHSVThresh(r, g, b);
+        for(size_t i = 0; i < ColourLib::COLOURS.size(); i++)
+        {
+            if(colour == ColourLib::COLOURS[i].colour) colour_probs_[i] = colour_probs_[i] * hit_prob;
+            else colour_probs_[i] = colour_probs_[i] * miss_prob;
+        }
+        normalizeProbs();
+        prob_checked_ = false;
+        if(neighbour) prob_neighbour_ = true;
+        else prob_neighbour_ = false;
     }
-    normalizeProbs();
-    prob_checked_ = false;
-    if(neighbour) prob_neighbour_ = true;
-    else prob_neighbour_ = false;
 }
 
 void GridCell::normalizeProbs()
