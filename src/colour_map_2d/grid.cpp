@@ -6,9 +6,11 @@ Grid::Grid():initialized_(false)
 {}
 
 Grid::Grid(double hit_prob, double miss_prob, double min_prob, double k,
-         int cell_occupied, int cell_obstacle, int cell_empty, int cell_unknown)
+         int cell_occupied, int cell_obstacle, int cell_empty, int cell_unknown,
+         int spawn_rate, double spawn_noise, int frame)
     :hit_prob_(hit_prob), miss_prob_(miss_prob), min_prob_(min_prob), k_(k), initialized_(false), frame_(80),
-    cell_occupied_(cell_occupied), cell_obstacle_(cell_obstacle), cell_empty_(cell_empty), cell_unknown_(cell_unknown)
+    cell_occupied_(cell_occupied), cell_obstacle_(cell_obstacle), cell_empty_(cell_empty), cell_unknown_(cell_unknown),
+    spawn_rate_(spawn_rate), spawn_noise_(spawn_noise), frame_(frame)
 {}
 
 ////GETTERS
@@ -27,22 +29,18 @@ void Grid::processOGMap(const nav_msgs::OccupancyGrid &og_map)
         if(og_map.data[i] == cell_occupied_)
         {
             grid_cells_[i].setCellState(CellState::occupied);
-            std::cout << "occupied ";
         }
         else if(og_map.data[i] == cell_obstacle_)
         {
             grid_cells_[i].setCellState(CellState::obstacle);
-            std::cout << "obstacle ";
         }
         else if(og_map.data[i] == cell_empty_)
         {
             grid_cells_[i].setCellState(CellState::empty);
-            std::cout << "empty ";
         }
         else
         {
             grid_cells_[i].setCellState(CellState::unknown);
-            std::cout << "unknown ";
         }
     }
 }
@@ -61,11 +59,30 @@ void Grid::initializeGrid(nav_msgs::MapMetaData og_map_data)
     initialized_ = true;
 }
 
-void Grid::proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b)
+void Grid::proccessPoint(int index, uint8_t r, uint8_t g, uint8_t b, int spawn)
 {
     if(index > 0)
     {
         grid_cells_[index].processPoint(r, g, b, hit_prob_, miss_prob_);
+        if(spawn > 0 && grid_cells_[index].getCellState() == CellState::obstacle)
+        {
+            unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+            std::default_random_engine generator (seed);
+            std::uniform_int_distribution<int> spawn_distribution(0, spawn_rate_);
+            if(spawn_distribution(generator) == spawn_rate_)
+            {
+                std::normal_distribution<double> noise_distribution(0.0, spawn_noise_);
+                geometry_msgs::Pose2D point_pose = MapTransform::indextoPose(index, grid_info_);
+                for(int i = 0; i < spawn; i++)
+                {
+                    geometry_msgs::Pose2D temp_pose;
+                    temp_pose.x = point_pose.x + noise_distribution(generator);
+                    temp_pose.y = point_pose.y + noise_distribution(generator);
+                    unsigned temp_index = MapTransform::posetoIndex(temp_pose);
+                    grid_cells_[temp_index].processPoint(r, g, b, hit_prob_, miss_prob_);
+                }
+            }
+        }
     }
 }
 
