@@ -38,7 +38,6 @@ class ColourMap2DNode{
     image_transport::Publisher image_pub_;
 
     Grid grid_;
-    std::mutex mutex_;
     cv_bridge::CvImage colour_map_image_;
     double map_image_rate_;
 
@@ -57,7 +56,6 @@ public:
         double hit_prob;
         double miss_prob;
         double min_prob;
-        double k;
         
         int cell_occupied;
         int cell_obstacle;
@@ -74,7 +72,6 @@ public:
         pn.param<double>("hit_prob", hit_prob, 0.6);
         pn.param<double>("miss_prob", miss_prob, 0.2);
         pn.param<double>("min_prob", min_prob, 0.7);
-        pn.param<double>("k", k, 0.5);
         pn.param<int>("cell_occupied", cell_occupied, 50);
         pn.param<int>("cell_occupied", cell_obstacle, 100);
         pn.param<int>("cell_occupied", cell_unknown, -1);
@@ -84,7 +81,7 @@ public:
         pn.param<int>("frame", frame, 100);
         pn.param<double>("spawn_noise", spawn_noise, 0.01);
 
-        grid_ = Grid(hit_prob, miss_prob, min_prob, k, cell_occupied, cell_obstacle, cell_empty, cell_unknown,
+        grid_ = Grid(hit_prob, miss_prob, min_prob, cell_occupied, cell_obstacle, cell_empty, cell_unknown,
                      spawn_rate, spawn_noise, spawn_size, frame);
         colour_map_image_.encoding = sensor_msgs::image_encodings::RGB8;
     }
@@ -105,7 +102,8 @@ public:
     {
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
         pcl::fromROSMsg (*pCloud, *cloud);
-
+        
+        std::vector<ColourPoint> colour_points;
         for(auto point:cloud->points)
         {
             geometry_msgs::PointStamped point_in;
@@ -128,12 +126,14 @@ public:
             }
             if(!exception)
             {
-                geometry_msgs::Pose2D pose;
+                colour_points.push_back(ColourPoint(point_out.point.x, point_out.point.y, point.r, point.g, point.b);
+                /*geometry_msgs::Pose2D pose;
                 pose.x = point_out.point.x;
                 pose.y = point_out.point.y;
                 int point_index = ColourMap2D::MapTransform::posetoIndex(pose, grid_.getGridInfo());
-                grid_.proccessPoint(point_index, point.r, point.g, point.b);
+                grid_.proccessPoint(point_index, point.r, point.g, point.b);*/
             }
+            grid_.processPoints(colour_points);
         }
 
         ROS_INFO("Points Proccessed");
@@ -149,7 +149,6 @@ public:
             {
                 grid_.updateImage(colour_map_image_.image);
                 ROS_INFO("Proccessed");
-
                 image_pub_.publish(colour_map_image_.toImageMsg());
             }
             rate_limiter.sleep();
