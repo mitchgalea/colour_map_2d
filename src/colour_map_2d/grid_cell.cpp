@@ -4,7 +4,7 @@ namespace ColourMap2D{
 
 ////CONSTRUCTORS
 GridCell::GridCell(unsigned index, CellState cell_state)
-    : index_(index), cell_state_(cell_state)
+    : index_(index), cell_state_(cell_state), state_changed_(true)
 {
     for(size_t i = 0; i < ColourLib::COLOURS.size() - 1; i++)
     {
@@ -16,13 +16,18 @@ GridCell::GridCell(unsigned index, CellState cell_state)
 ////GETTERS
 unsigned GridCell::getIndex() const {return index_;}
 CellState GridCell::getCellState() const {return cell_state_;}
+bool GridCell::stateChanged() const {return state_changed_;}
 
 ////SETTERS
 void GridCell::setIndex(unsigned index) {index_ = index;}
-void GridCell::setCellState(CellState cell_state) {cell_state_ = cell_state;}
+void GridCell::setCellState(CellState cell_state)
+{
+    cell_state_ = cell_state;
+    state_changed_ = true;
+}
 
 ////METHODS
-void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob)
+void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, double miss_prob, double prob_thresh)
 {
     if(cell_state_ == CellState::obstacle)
     {
@@ -33,10 +38,12 @@ void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, do
             else colour_probs_[i] = colour_probs_[i] * miss_prob;
         }
         normalizeProbs();
+        probThresh(prob_thresh);
     }
+    state_changed_ = true;
 }
     
-void GridCell::processPoint(ColourPoint &point, double &hit_prob, double &miss_prob)
+void GridCell::processPoint(ColourPoint point, double hit_prob, double miss_prob, double prob_thresh)
 {
     if(cell_state_ == CellState::obstacle)
     {
@@ -47,7 +54,9 @@ void GridCell::processPoint(ColourPoint &point, double &hit_prob, double &miss_p
             else colour_probs_[i] = colour_probs_[i] * miss_prob;
         }
         normalizeProbs();
+        probThresh(prob_thresh);
     }
+    state_changed_ = true;
 }
 
 void GridCell::normalizeProbs()
@@ -61,11 +70,18 @@ void GridCell::normalizeProbs()
     {
         colour_probs_[i] = colour_probs_[i] / count;
     }
-
-
 }
 
-std::pair<ColourLib::Colour, double> GridCell::getMaxProb()
+void GridCell::probThresh(double prob_thresh)
+{
+    for(size_t i = 0; i < colour_probs_.size(); i++)
+    {
+        if(colour_probs_[i] < prob_thresh) colour_probs_[i] = prob_thresh;
+    }
+    normalizeProbs();
+}
+
+std::pair<ColourLib::Colour, double> GridCell::getMaxProb(bool state_observed)
 {
     std::pair<ColourLib::Colour, double> max_prob;
     max_prob.second = 0.0;
@@ -77,6 +93,7 @@ std::pair<ColourLib::Colour, double> GridCell::getMaxProb()
             max_prob.first = ColourLib::COLOURS[i].colour;
         }
     }
+    if(state_observed) state_changed_ = false;
     return max_prob;
 }
 

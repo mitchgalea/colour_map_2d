@@ -146,6 +146,9 @@ add_library(ColourMap2dLib
   include/colour_map_2d/grid.h
   src/colour_map_2d/map_transform.cpp
   include/colour_map_2d/map_transform.h
+  src/colour_map_2d/colour_point.cpp
+  include/colour_map_2d/colour_point.h
+  include/colour_map_2d_node.h
 )
 
 ## Add cmake target dependencies of the library

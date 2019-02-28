@@ -16,18 +16,15 @@ std::pair<int, int> MapTransform::posetoGrid(geometry_msgs::Pose2D pose, nav_msg
     int col = round((pose.x - map_data.origin.position.x) / map_data.resolution);
     int row = round((pose.y - map_data.origin.position.y) / map_data.resolution);
 
-    if(col >= 0 && row >= 0)
-    {
-        grid_cell.first = col;
-        grid_cell.second = row;
-        return grid_cell;
-    }
-    else
-    {
-        grid_cell.first = -1;
-        grid_cell.second = -1;
-        return grid_cell;
-    }
+    if(col >= map_data.width) col = map_data.width - 1;
+    if(col < 0) col = 0;
+    if(row >= map_data.height) row = map_data.height -1;
+    if(row < 0) row = 0;
+
+    grid_cell.second = row;
+    grid_cell.first = col;
+
+    return grid_cell;
 }
 
 int MapTransform::posetoIndex(geometry_msgs::Pose2D pose, nav_msgs::MapMetaData map_data)
@@ -35,15 +32,13 @@ int MapTransform::posetoIndex(geometry_msgs::Pose2D pose, nav_msgs::MapMetaData 
     int col = round((pose.x - map_data.origin.position.x) / map_data.resolution);
     int row = round((pose.y - map_data.origin.position.y) / map_data.resolution);
 
-    if(col >= 0 && row >= 0)
-    {
-        int index = row * map_data.width + col;
-        return index;
-    }
-    else
-    {
-        return -1;
-    }
+    if(col >= map_data.width) col = map_data.width - 1;
+    if(col < 0) col = 0;
+    if(row >= map_data.height) row = map_data.height -1;
+    if(row < 0) row = 0;
+
+    int index = row * map_data.width + col;
+    return index;
 
 }
 
@@ -56,14 +51,38 @@ geometry_msgs::Pose2D MapTransform::indextoPose(int index, nav_msgs::MapMetaData
 std::pair<int, int> MapTransform::indextoGrid(int index, nav_msgs::MapMetaData map_data)
 {
     std::pair<int, int> grid_cell;
-    grid_cell.second = index / map_data.width;
-    grid_cell.first = index % map_data.width;
+
+    int col = index % map_data.width;
+    int row = index / map_data.width;
+
+    if(col >= map_data.width) col = map_data.width - 1;
+    if(col < 0) col = 0;
+    if(row >= map_data.height) row = map_data.height -1;
+    if(row < 0) row = 0;
+
+    grid_cell.second = row;
+    grid_cell.first = col;
+
     return grid_cell;
 }
 
 int MapTransform::gridtoIndex(int col, int row, nav_msgs::MapMetaData map_data)
 {
     return row * map_data.width + col;
+}
+
+int MapTransform::xytoIndex(double x, double y, nav_msgs::MapMetaData map_data)
+{
+    int col = round((x - map_data.origin.position.x) / map_data.resolution);
+    int row = round((y - map_data.origin.position.y) / map_data.resolution);
+
+    if(col >= map_data.width) col = map_data.width - 1;
+    if(col < 0) col = 0;
+    if(row >= map_data.height) row = map_data.height -1;
+    if(row < 0) row = 0;
+
+    int index = row * map_data.width + col;
+    return index;
 }
 
 }

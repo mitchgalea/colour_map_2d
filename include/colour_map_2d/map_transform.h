@@ -23,6 +23,8 @@ public:
     static int posetoIndex(geometry_msgs::Pose2D pose, nav_msgs::MapMetaData map_data);
     static geometry_msgs::Pose2D indextoPose(int index, nav_msgs::MapMetaData map_data);
 
+    static int xytoIndex(double x, double y, nav_msgs::MapMetaData map_data);
+
 };
 
 }

@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #ifndef COLOUR_POINT_H
 #define COLOUR_POINT_H
 
@@ -12,6 +14,7 @@ class ColourPoint{
 public:
     ////CONSTRUCTORS
     ColourPoint(double x_in, double y_in, uint8_t r_in, uint8_t g_in, uint8_t b_in);
+    ColourPoint(ColourPoint point, double x_noise, double y_noise);
     
     ////GETTERS
     double getX() const;
