@@ -1,7 +1,7 @@
 #include "colour_map_2d/grid.h"
 
 namespace ColourMap2D {
-
+////CONSTRUCTORS
 Grid::Grid():initialized_(false)
 {}
 
@@ -44,8 +44,10 @@ void Grid::processOGMap(const nav_msgs::OccupancyGrid og_map)
     std::lock_guard<std::mutex> locker(mutex_);
     if(og_map.info.width != grid_info_.width || og_map.info.height != grid_info_.height)
     {
+        //if map size changes error occurs
         ROS_ERROR("MAP SIZE DIFFERS");
     }
+    //for all cells it will set the cell state if cell state differs
     for(size_t i = 0; i < og_map.data.size(); i++)
     {
         if(og_map.data[i] == cell_occupied_ && grid_cells_[i].getCellState() != CellState::occupied)
@@ -70,11 +72,13 @@ void Grid::processOGMap(const nav_msgs::OccupancyGrid og_map)
 void Grid::initializeGrid(nav_msgs::MapMetaData og_map_data)
 {
     std::lock_guard<std::mutex> locker(mutex_);
+    //sets grid_info
     grid_info_ = og_map_data;
     for(unsigned row = 0; row < og_map_data.height; row++)
     {
         for(unsigned col = 0; col < og_map_data.width; col++)
         {
+            //calculates index
             unsigned index = row * og_map_data.width + col;
             grid_cells_.push_back(GridCell(index));
         }
@@ -85,15 +89,19 @@ void Grid::initializeGrid(nav_msgs::MapMetaData og_map_data)
 void Grid::processPoints(std::vector<ColourPoint> &points)
 {
     std::lock_guard<std::mutex> locker(mutex_);
+    //normal and uniform distrubutions for point spawning
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator (seed);
     std::uniform_int_distribution<int> spawn_distribution(0, spawn_rate_);  
     std::normal_distribution<double> noise_distribution(0.0, spawn_noise_);
-         
+    
+    //iterates through points
     for(size_t i = 0; i < points.size(); i++)
     {
         unsigned index = ColourMap2D::MapTransform::xytoIndex(points[i].getX(), points[i].getY(), grid_info_);
+        //processes points
         grid_cells_[index].processPoint(points[i], hit_prob_, miss_prob_, prob_thresh_);
+        //new points will be spawned with noise to eliviate point cloud noise and efficiently colour grid map
         if(spawn_size_ > 0 && grid_cells_[index].getCellState() == CellState::obstacle && spawn_distribution(generator) == spawn_rate_)
         {
             for(int i = 0; i < spawn_size_; i++)
@@ -109,6 +117,7 @@ void Grid::processPoints(std::vector<ColourPoint> &points)
 void Grid::updateImage(cv::Mat &image)
 {
     std::lock_guard<std::mutex> locker(mutex_);
+    //iterates through image and sets image cell to appropriate colour
     for(int row = 0; row < image.rows; row++)
     {
         for(int col = 0 ; col < image.cols; col++)
