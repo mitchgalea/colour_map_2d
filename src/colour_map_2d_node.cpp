@@ -2,13 +2,16 @@
 
 using namespace ColourMap2D;
 
+////CONSTRUCTOR
 ColourMap2DNode::ColourMap2DNode(ros::NodeHandle nh)
     : nh_(nh), it_(nh), target_frame_("map"), tf_listener_(tf_buffer_)
 {
+    //initializes ros publishers and subscribers
     og_sub_ = nh_.subscribe("/output_map", 1, &ColourMap2DNode::ogCallback, this);
     pc_sub_ = nh_.subscribe<sensor_msgs::PointCloud2>("/camera/depth/points/filtered", 2, &ColourMap2DNode::pcCallback, this);
     image_pub_ = it_.advertise("/colour_map_image", 1);
 
+    //input parameters
     double hit_prob;
     double miss_prob;
     double min_prob;
@@ -24,6 +27,7 @@ ColourMap2DNode::ColourMap2DNode(ros::NodeHandle nh)
     int spawn_rate;
     int spawn_size;
 
+    //ros parameter inputs
     ros::NodeHandle pn("~");
     pn.param<double>("rate", map_image_rate_, 1.0);
     pn.param<double>("hit_prob", hit_prob, 0.6);
@@ -39,6 +43,7 @@ ColourMap2DNode::ColourMap2DNode(ros::NodeHandle nh)
     pn.param<int>("frame", frame, 100);
     pn.param<double>("spawn_noise", spawn_noise, 0.015);
 
+    //creates grid object with variables
     grid_ = Grid(hit_prob, miss_prob, min_prob, prob_thresh, cell_occupied, cell_obstacle, cell_empty, cell_unknown,
                  spawn_rate, spawn_noise, spawn_size, frame);
 
@@ -60,12 +65,14 @@ void ColourMap2DNode::pcCallback(const sensor_msgs::PointCloud2ConstPtr& pCloud)
 {
     if(grid_.initialized())
         {
+        //ros msg to pcl message
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
         pcl::fromROSMsg (*pCloud, *cloud);
 
         std::vector<ColourPoint> colour_points;
         for(auto point:cloud->points)
         {
+            //transforms points to map frame
             geometry_msgs::PointStamped point_in;
             point_in.point.x = point.x;
             point_in.point.y = point.y;
@@ -119,7 +126,7 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   ColourMap2DNode colour_map_2d_node(nh);
-
+  
   std::thread image_thread(&ColourMap2DNode::mapImageThread, std::ref(colour_map_2d_node));
 
   ros::spin();
