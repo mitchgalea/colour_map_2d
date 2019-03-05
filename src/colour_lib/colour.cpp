@@ -2,6 +2,7 @@
 
 namespace ColourLib {
 
+////CONSTRUCTORS
 ColourInfo::ColourInfo(Colour colour_input, std::string name_input,
                        std::vector<uint8_t> h_input, std::vector<uint8_t> s_input, std::vector<uint8_t> v_input,
                        uint8_t r_input, uint8_t g_input, uint8_t b_input)
@@ -13,29 +14,35 @@ ColourInfo::ColourInfo(Colour colour_input, std::__cxx11::string name_input,
     :colour(colour_input), name(name_input), r(r_input), g(g_input), b(b_input)
 {}
 
-
+////IDENTIFIER METHODS
 Colour Identifier::identifyHSVThresh(cv::Vec3b RGB)
 {
+    //change from rgb to hsv colourspace
     cv::Vec3b hsv = Identifier::vecRGB2HSV(RGB);
+    //iterates through COLOURS checking whether hsv values are within threshold
     for(auto i = 0; i < COLOURS.size(); i++)
     {
         if(Identifier::inThresh(COLOURS.at(i).h, hsv[0]) &&
            Identifier::inThresh(COLOURS.at(i).s, hsv[1]) &&
            Identifier::inThresh(COLOURS.at(i).v, hsv[2])) return COLOURS.at(i).colour;
     }
-    return Colour::white;
+    //if no matches return black
+    return Colour::black;
 }
 
 Colour Identifier::identifyHSVThresh(uint8_t r, uint8_t g, uint8_t b)
 {
     cv::Vec3b RGB(r, g, b);
+    //change from rgb to hsv colourspace
     cv::Vec3b hsv = Identifier::vecRGB2HSV(RGB);
+    //iterates through COLOURS checking whether hsv values are within threshold
     for(auto i = 0; i < COLOURS.size(); i++)
     {
         if(Identifier::inThresh(COLOURS.at(i).h, hsv[0]) &&
            Identifier::inThresh(COLOURS.at(i).s, hsv[1]) &&
            Identifier::inThresh(COLOURS.at(i).v, hsv[2])) return COLOURS.at(i).colour;
     }
+    //if no matches return black
     return Colour::black;
 }
 
@@ -52,6 +59,7 @@ Colour Identifier::identifyRGB(cv::Vec3b RGB)
 
 Colour Identifier::identifyRGB(uint8_t r, uint8_t g, uint8_t b)
 {
+    
     cv::Vec3b RGB(r, g, b);
     for(auto i = 0; i < COLOURS.size(); i++)
     {
@@ -81,10 +89,12 @@ cv::Vec3b Identifier::vecHSV2RGB(cv::Vec3b hsv_vec)
 bool Identifier::inThresh(std::vector<uint8_t> thresh, uint8_t input)
 {
     bool in_range = false;
+    //checks through all thresholds - this is if there are multiple thresholds
     for(int i = 0; i < thresh.size(); i = i + 2)
     {
         if(input >= thresh.at(i) && input <= thresh.at(i+1)) in_range = true;
     }
+    //returns whether it is in thresholf
     return in_range;
 }
 
