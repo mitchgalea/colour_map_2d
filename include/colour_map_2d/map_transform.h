@@ -8,10 +8,11 @@
 #define MAPTRANSFORM_H
 
 namespace ColourMap2D{
-
+//class for static transfers from measurement domains
 class MapTransform
 {
 private:
+    //private constructor inhibits class construction
     MapTransform();
 public:
     static geometry_msgs::Pose2D gridtoPose(int col, int row, nav_msgs::MapMetaData map_data);
