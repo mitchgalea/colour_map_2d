@@ -31,7 +31,7 @@ const uint8_t BLUE_B = 255;
 
 
 namespace ColourLib{
-
+// Enum Class for Colours
 enum class Colour {
     red,
     blue,
@@ -41,6 +41,7 @@ enum class Colour {
     grey
 };
 
+// ColourInfo is the struct that contains RGB and HSV information about colours to be detected
 struct ColourInfo{
     ColourInfo(Colour colour_input, std::string name_input,
                std::vector<uint8_t> h_input, std::vector<uint8_t> s_input, std::vector<uint8_t> v_input,
@@ -57,12 +58,18 @@ struct ColourInfo{
     uint8_t g;
     uint8_t b;
 };
+//Returns RGB information about a colour
 cv::Vec3b getRGB(Colour colour);
+//Returns R value for a colour
 uint8_t getR(Colour colour);
+//Returns G value for a colour
 uint8_t getG(Colour colour);
+//Returns B value for a colour
 uint8_t getB(Colour colour);
+//Returns name of a colour
 std::string getName(Colour colour);
 
+//Colours being Used
 const ColourInfo RED(Colour::red, "RED", RED_H, RED_S, RED_V, RED_R, RED_G, RED_B);
 const ColourInfo GREEN(Colour::green, "GREEN", GREEN_H, GREEN_S, GREEN_V, GREEN_R, GREEN_G, GREEN_B);
 const ColourInfo BLUE(Colour::blue, "BLUE", BLUE_H, BLUE_S, BLUE_V, BLUE_R, BLUE_G, BLUE_B);
@@ -70,9 +77,11 @@ const ColourInfo BLACK(Colour::black, "BLACK", 0, 0, 0);
 const ColourInfo WHITE(Colour::white, "WHITE", 255, 255, 255);
 const ColourInfo GREY(Colour::grey, "GREY", 150, 150, 150);
 
+//Colour Vectors
 const std::vector<ColourInfo> COLOURS = {RED, BLUE, GREEN, BLACK};
 const std::vector<ColourInfo> ALL_COLOURS = {RED, BLUE, GREEN, BLACK};
 
+//Static Class for Identifying if colours are within Thresholds
 class Identifier
 {
 private:
