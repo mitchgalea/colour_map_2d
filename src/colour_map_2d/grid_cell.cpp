@@ -6,10 +6,12 @@ namespace ColourMap2D{
 GridCell::GridCell(unsigned index, CellState cell_state)
     : index_(index), cell_state_(cell_state), state_changed_(true)
 {
+    //initializes colour_probs_ with COLOURS from colour.h
     for(size_t i = 0; i < ColourLib::COLOURS.size() - 1; i++)
     {
         colour_probs_.push_back(1 / static_cast<double>(ColourLib::COLOURS.size() + 1));
     }
+    //other will have twice the probability
     colour_probs_.push_back(2 / static_cast<double>(ColourLib::COLOURS.size() + 1));
 }
 
@@ -31,9 +33,11 @@ void GridCell::processPoint(uint8_t r, uint8_t g, uint8_t b, double hit_prob, do
 {
     if(cell_state_ == CellState::obstacle)
     {
+        //identifies colour
         ColourLib::Colour colour = ColourLib::Identifier::identifyHSVThresh(r, g, b);
         for(size_t i = 0; i < ColourLib::COLOURS.size(); i++)
         {
+            //iterates through COLOURS and uses histogram process
             if(colour == ColourLib::COLOURS[i].colour) colour_probs_[i] = colour_probs_[i] * hit_prob;
             else colour_probs_[i] = colour_probs_[i] * miss_prob;
         }
