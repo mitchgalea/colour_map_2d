@@ -9,6 +9,7 @@ ColourPoint::ColourPoint(double x_in, double y_in, uint8_t r_in, uint8_t g_in, u
 ColourPoint::ColourPoint(ColourPoint point, double x_noise, double y_noise)
     :r_(point.getR()), g_(point.getG()), b_(point.getB())
 {
+    //adds noise to point
     x_ = point.getX() + x_noise;
     y_ = point.getY() + y_noise;
 }
